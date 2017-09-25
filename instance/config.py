@@ -7,7 +7,7 @@ class Config(object):
 	DEBUG = False
 	CSRF_ENABLED = True
 	SECRET = os.getenv('SECRET')
-	SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+	SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2.9.0.1.@localhost/shoplisttest_db'
 
 class DevelopmentConfig(Config):
 	"""
@@ -20,7 +20,7 @@ class TestingConfig(Config):
 	Testing configurations
 	"""
 	TESTING = True
-	SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2.9.0.1.@localhost/db_name'
+	SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2.9.0.1.@localhost/shoplisttest_db'
 	DEBUG = True
 
 class StagingConfig(Config):
