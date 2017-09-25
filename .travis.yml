@@ -1,0 +1,16 @@
+language: python
+python:
+  - "2.7"
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+# command to run tests
+script: nosetests --with-coverage --cover-package=tests && coverage report
+after_success: coveralls
+services:
+  - postgresql
+before_script:
+  - psql -c 'create database shopping_list_api_test;' -U postgres
+addons:
+  postgresql: "9.6"
+  
