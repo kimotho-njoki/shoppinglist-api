@@ -11,7 +11,7 @@ class ShoppinglistTestCase(unittest.TestCase):
 		"""
 		Initialise app, test client and test variables
 		"""
-		self.app = create_app(config_name="testing")
+		self.app = create_app(config_name='testing')
 		self.client = self.app.test_client
 		self.shoppinglist = {'name':'clothes'}
 
