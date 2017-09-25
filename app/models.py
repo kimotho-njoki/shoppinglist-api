@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from app import db
 
 class User(db.Model):
@@ -11,8 +12,8 @@ class User(db.Model):
 	username = db.Column(db.String(256), nullable=False)
 	email = db.Column(db.String(256), nullable=False, unique=True)
 	password = db.Column(db.String(256), nullable=False)
-	date_created = db.Column(db.Datetime, default=db.func.current_timestamp())
-	date_modified = db.Column(db.Datetime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+	date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+	date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 	shoplists = db.relationship('ShoppingList', order_by='ShoppingList.id', cascade="all, delete-orphan")
 
 	def __init__(self, username, email, password):
@@ -41,8 +42,8 @@ class ShoppingList(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(256), nullable=False)
 	user_id = db.Column(db.Integer, db.ForeignKey(User.id))
-	date_created = db.Column(db.Datetime, default=db.func.current_timestamp())
-	date_modified = db.Column(db.Datetime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+	date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+	date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 	shoplist_items = db.relationship('ShoppingListItems', order_by='ShoppingListItems.id', cascade="all, delete-orphan")
 
 	def __init__(self, name, user_id):
@@ -89,8 +90,8 @@ class ShoppingListItems(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(256), nullable=False)
 	list_id = db.Column(db.Integer, db.ForeignKey(ShoppingList.id))
-	date_created = db.Column(db.Datetime, default=db.func.current_timestamp())
-	date_modified = db.Column(db.Datetime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
+	date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
+	date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
 	def __init__(self, name, list_id):
 		"""
