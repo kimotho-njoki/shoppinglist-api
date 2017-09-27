@@ -1,6 +1,6 @@
 import unittest
 import json
-from app import *
+from app import db, create_app
 
 class ShoppinglistTestCase(unittest.TestCase):
     """
