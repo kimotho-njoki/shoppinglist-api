@@ -51,7 +51,8 @@ class LoginView(MethodView):
 				access_token = user.encode_auth_token(user.id)
 				if access_token:
 					response = {
-					'message': 'You logged in successfully.'
+					'message': 'You logged in successfully.',
+					'access_token' : access_token.decode()
 					}
 					return make_response(jsonify(response)), 200
 			else:
