@@ -78,7 +78,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         """
         Test whether API can get shoppinglist by id (GET request)
         """
-        self.register()
+        self.register_user()
         result = self.login_user()
         access_token = json.loads(result.data.decode())['access_token']
         res = self.client().post(
