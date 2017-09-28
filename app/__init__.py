@@ -27,7 +27,7 @@ def create_app(config_name):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
                     if name:
-                        shoppinglist = ShoppingList(name=name)
+                        shoppinglist = ShoppingList(name=name, user_id=user_id)
                         shoppinglist.save()
                         response = jsonify({
                             'id' : shoppinglist.id,
@@ -37,7 +37,7 @@ def create_app(config_name):
                         })
                         return make_response(response), 201
                 else:
-                    shoppinglists = ShoppingList.get_all()
+                    shoppinglists = ShoppingList.get_all(user_id)
                     results = []
                     for shoppinglist in shoppinglists:
                         obj = {
@@ -47,8 +47,8 @@ def create_app(config_name):
                         'date_modified' : shoppinglist.date_modified
                         }
                         results.append(obj)
-                        response = jsonify(results)
-                        return make_response(response), 200
+                    response = jsonify(results)
+                    return make_response(response), 200
             else:
                 message = user_id
                 response = {
@@ -57,8 +57,8 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
 
-        @app.route('/shoppinglists/<int:list_id>', methods=['GET'])
-        def get_shoppinglist(user_id, list_id):
+        @app.route('/shoppinglists/<list_id>', methods=['GET'])
+        def get_shoppinglist(list_id):
             auth_header = request.headers.get('Authorization')
             access_token = auth_header.split(" ")[1]
 
