@@ -1,5 +1,4 @@
 import unittest
-import os
 import json
 from app import db, create_app
 
@@ -14,7 +13,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         """
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
-        self.shoppinglist = {'name':'clothes'}
+        self.shoppinglist = {'name': 'clothes'}
 
         with self.app.app_context():
             db.drop_all()
