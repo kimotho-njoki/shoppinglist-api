@@ -63,6 +63,15 @@ class ShoppingItemTestCase(unittest.TestCase):
 		self.assertEqual(res.status_code, 201)
 		self.assertIn('shirt', str(res.data))
 
+	def test_get_all_items(self):
+		"""
+		Test whether API can get all items created
+		"""
+		res = self.client().get('/shoppinglists/1/items',
+			headers=dict(Authorization="Bearer " + self.access_token),
+			data=self.shoppinglist_item)
+		self.assertEqual(res.status_code, 200)
+
 	def test_get_item_by_id(self):
 		"""
 		Test whether API can get a single shoppinglist item created (GET request)
@@ -97,7 +106,7 @@ class ShoppingItemTestCase(unittest.TestCase):
 		self.assertEqual(second_res.status_code, 201)
 
 		third_res = self.client().get(
-			'/shoppinglists/1/item/{}'.format(results['id']),
+			'/shoppinglists/1/items/{}'.format(results['id']),
 			headers=dict(Authorization="Bearer " + self.access_token))
 		self.assertIn('trouser', str(second_res.data))
 
