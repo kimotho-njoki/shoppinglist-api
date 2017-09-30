@@ -6,7 +6,7 @@ class Config(object):
     """
     DEBUG = False
     CSRF_ENABLED = True
-    SECRET = my_secret_random_key
+    SECRET = "my_secret_random_key"
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2.9.0.1.@localhost/shoplistapi_db'
 
 class DevelopmentConfig(Config):
