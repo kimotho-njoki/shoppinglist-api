@@ -161,8 +161,8 @@ class ShoppingListItems(db.Model):
         """
         Deletes an item
         """
-        self.session.delete(self)
-        self.session.commit()
+        db.session.delete(self)
+        db.session.commit()
 
     def __repr__(self):
         """
