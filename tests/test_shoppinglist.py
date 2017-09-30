@@ -1,6 +1,6 @@
 import unittest
 import json
-from app import db, create_app
+from app import *
 
 class ShoppinglistTestCase(unittest.TestCase):
     """
@@ -128,7 +128,7 @@ class ShoppinglistTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data={'name':'school'})
         self.assertEqual(rv.status_code, 201)
-        result_in_json = json.loads(res.data.decode())
+        result_in_json = json.loads(rv.data.decode())
         res = self.client().delete(
             '/shoppinglists/{}'.format(result_in_json['id']),
             headers=dict(Authorization="Bearer " + access_token))
