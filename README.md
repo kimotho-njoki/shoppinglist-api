@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/kimotho-njoki/shoppinglist-api.svg?branch=master)](https://travis-ci.org/kimotho-njoki/shoppinglist-api)
+[![Build Status](https://travis-ci.org/kimotho-njoki/shoppinglist-api.svg?branch=master)](https://travis-ci.org/kimotho-njoki/shoppinglist-api) [![Coverage Status](https://coveralls.io/repos/github/kimotho-njoki/shoppinglist-api/badge.svg?branch=master)](https://coveralls.io/github/kimotho-njoki/shoppinglist-api?branch=master)
 
 # Shoppinglist Api
 Flask API for a shopping list application.
