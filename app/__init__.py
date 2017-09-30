@@ -60,7 +60,7 @@ def create_app(config_name):
 
 
     @app.route('/shoppinglists/<int:list_id>', methods=['GET'])
-    def get_shoppinglist(user_id, list_id):
+    def get_shoppinglist(list_id):
         """
         Get shoppinglist by id
         """
@@ -72,7 +72,7 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 shoppinglist = ShoppingList.query.filter_by(id=list_id, user_id=user_id).first()
                 print shoppinglist
-                if shoppinglist.user_id == user_id:
+                if shoppinglist:
                     response = jsonify({
                         'id' : shoppinglist.id,
                         'name' : shoppinglist.name,
@@ -91,7 +91,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
     @app.route('/shoppinglists/<int:list_id>', methods=['PUT'])
-    def edit_shoppinglist(user_id, list_id):
+    def edit_shoppinglist(list_id):
         """
         Update a shopping list
         """
@@ -123,7 +123,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
     @app.route('/shoppinglists/<int:list_id>', methods=['DELETE'])
-    def delete_shoppinglist(user_id, list_id):
+    def delete_shoppinglist(list_id):
         """
         Delete a shopping list 
         """
@@ -138,7 +138,7 @@ def create_app(config_name):
                 if request.method == 'DELETE':
                     shoppinglist.delete()
                     return {
-                    "message" : "shoppinglist {} deleted successfully".format(shoppinglist.id)
+                    "message" : "shoppinglist {} deleted successfully".format(shoppinglist.name)
                     },200
             else:
                 message = user_id
@@ -148,7 +148,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
     @app.route('/shoppinglists/<int:list_id>/items', methods=['POST', 'GET'])
-    def shoppinglist_item(user_id, list_id):
+    def shoppinglist_item(list_id):
         """
         Create and get all shopping list items 
         """
@@ -168,7 +168,7 @@ def create_app(config_name):
                             'date_created': shoppinglistitem.date_created,
                             'date_modified': shoppinglistitem.date_modified
                         })
-                        return make_response(response), 201
+                        return response, 201
                 else:
                     shoppinglistitems = ShoppingListItems.get_all(list_id)
                     results = []
@@ -181,7 +181,7 @@ def create_app(config_name):
                         }
                         results.append(obj)
                     response = jsonify(results)
-                    return make_response(response), 200
+                    return response, 200
             else:
                 message = user_id
                 response = {
@@ -190,7 +190,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
     @app.route('/shoppinglists/<int:list_id>/items/<int:item_id>', methods=['GET'])
-    def get_item_by_id(user_id, list_id):
+    def get_item_by_id(list_id, item_id):
         """
         Get a shopping list item created by its id
         """
@@ -200,7 +200,7 @@ def create_app(config_name):
             user_id = User.decode_token(access_token)
             if not isinstance (user_id, str):
                 shoppinglistitem = ShoppingListItems.query.filter_by(id=item_id, list_id=list_id).first()
-                if shoppinglistitem.list_id == list_id:
+                if shoppinglistitem:
                     response = jsonify({
                         'id': shoppinglistitem.id,
                         'name': shoppinglistitem.name,
@@ -219,7 +219,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
     @app.route('/shoppinglists/<int:list_id>/items/<int:item_id>', methods=['PUT'])
-    def item_editing(user_id, list_id):
+    def item_editing(list_id, item_id):
         """
         Update a shopping list item
         """
@@ -251,7 +251,7 @@ def create_app(config_name):
                 return make_response(jsonify(response)), 401
 
     @app.route('/shoppinglists/<int:list_id>/items/<int:item_id>', methods=['DELETE'])
-    def item_deletion(user_id, list_id):
+    def item_deletion(list_id, item_id):
         """
         Delete a shoppinglist item
         """
@@ -266,7 +266,7 @@ def create_app(config_name):
                 if request.method == 'DELETE':
                     shoppinglistitem.delete()
                     return {
-                    "message" : "shoppinglist item {} has been deleted successfully".format(shoppinglistitem.id)
+                    "message" : "shoppinglist item {} has been deleted successfully".format(shoppinglistitem.name)
                     },200
             else:
                 message = user_id
