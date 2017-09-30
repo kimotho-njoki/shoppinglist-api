@@ -45,14 +45,14 @@ Then run the application
 |/auth/login   | POST   | User login   | FALSE |
 |/shoppinglists/| POST | Create shoppinglist | TRUE |
 |/shoppinglists/| GET  | Get all shoppinglists | TRUE |
-|/shoppinglists/<int:list_id>| GET | Get shoppinglist by id | True |
-|/shoppinglists/<int:list_id>| PUT | Edit shoppinglist | True |
-|/shoppinglists/<int:list_id>| DELETE | Delete shoppinglist | True |
-|/shoppinglists/<int:list_id>/items | POST | Create an item | True |
-|/shoppinglists/<int:list_id>/items | GET  | Get all items | True |
-|/shoppinglists/<int:list_id>/items/<int:item_id> | GET | Get item by id | True |
-|/shoppinglists/<int:list_id>/items/<int:item_id> | PUT | Edit item | True |
-|/shoppinglists/<int:list_id>/items/<int:item_id> | DELETE | Delete item | True |
+|/shoppinglists/<int:list_id>| GET | Get shoppinglist by id | TRUE |
+|/shoppinglists/<int:list_id>| PUT | Edit shoppinglist | TRUE |
+|/shoppinglists/<int:list_id>| DELETE | Delete shoppinglist | TRUE |
+|/shoppinglists/<int:list_id>/items | POST | Create an item | TRUE |
+|/shoppinglists/<int:list_id>/items | GET  | Get all items | TRUE |
+|/shoppinglists/<int:list_id>/items/<int:item_id> | GET | Get item by id | TRUE |
+|/shoppinglists/<int:list_id>/items/<int:item_id> | PUT | Edit item | TRUE |
+|/shoppinglists/<int:list_id>/items/<int:item_id> | DELETE | Delete item | TRUE |
 
 
 
