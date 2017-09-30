@@ -12,7 +12,7 @@ The ShoppingList application enables users to create accounts that enable them t
 >cd shoppinglist-api
 
 #### Create and activate a virtual environment
->mkvirtualenv shoppinglist-api
+>mkvirtualenv shoppinglist-api <br>
  workon shoppinglist-api
 
 #### Requirements
@@ -20,19 +20,19 @@ Install all dependencies using
 >pip install -r requirements.txt
 
 #### Initialize, migrate and update the database
->python manage.py db init
- python manage.py db migrate
- python manage.py db upgrade
+>python manage.py db init <br>
+ python manage.py db migrate <br>
+ python manage.py db upgrade <br>
 
 #### Testing the application
 >python manage.py test
 
 #### Running the application
 First set the environment variables
->set FLASK_APP=run.py 
- set SECRET=my_secret_random_key 
- set APP_SETTINGS=development
- set DATABASE_URL=postgresql://postgres-user:password@localhost/dbname
+>set FLASK_APP=run.py <br>
+ set SECRET=my_secret_random_key <br>
+ set APP_SETTINGS=development <br>
+ set DATABASE_URL=postgresql://postgres-user:password@localhost/dbname <br>
 
 Then run the application
 >python run.py
