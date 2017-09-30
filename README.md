@@ -5,29 +5,29 @@ Flask API for a shopping list application.
 The ShoppingList application enables users to create accounts that enable them to Log In and create their own shopping lists as well as add items. 
 
 ## Getting Started
-###Clone the repository
+#### Clone the repository
 > https://github.com/kimotho-njoki/shoppinglist-api
 
-###Navigate to the shoppinglist-api directory
+#### Navigate to the shoppinglist-api directory
 >cd shoppinglist-api
 
-###Create and activate a virtual environment
+#### Create and activate a virtual environment
 >mkvirtualenv shoppinglist-api
 workon shoppinglist-api
 
-###Requirements
+#### Requirements
 Install all dependencies using
 >pip install -r requirements.txt
 
-###Initialize, migrate and update the database
+#### Initialize, migrate and update the database
 >python manage.py db init
 python manage.py db migrate
 python manage.py db upgrade
 
-###Testing the application
+#### Testing the application
 >python manage.py test
 
-###Running the application
+#### Running the application
 First set the environment variables
 >set FLASK_APP=run.py 
 set SECRET=my_secret_random_key 
@@ -37,7 +37,7 @@ set DATABASE_URL=postgresql://postgres-user:password@localhost/dbname
 Then run the application
 >python run.py
 
-###Application End points
+#### Application End points
 
 | Resource URL | Method | Description | Requires Token |
 | -------------|--------|-------------|----------------|
