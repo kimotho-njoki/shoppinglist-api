@@ -22,9 +22,9 @@ class AuthTestCase(unittest.TestCase):
             db.drop_all()
             db.create_all()
     
-    def test_registration(self):
+    def test_successful_registration(self):
         """
-        Test whether API can register a user
+        Test whether API can register a user 
         """
         
         res = self.client().post('/auth/register', data=self.user_details)
@@ -41,6 +41,45 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(secondres.status_code, 202)
         result = json.loads(secondres.data.decode())
         self.assertEqual(result['message'], "You are already registered. Please login.")
+
+    def test_password_length(self):
+        """
+        Test that a password must be 6 characters long
+        """
+        details = {
+        'username': 'newuser',
+        'email': 'newuser@gmail.com',
+        'password': 'new'
+        }
+        res = self.client().post('/auth/register', data=details)
+        result = json.loads(res.data.decode())
+        self.assertEqual(result['message'], "Password is too short.")
+
+    def test_invalid_email(self):
+        """
+        Test that an email must be valid
+        """
+        details = {
+        'username': 'newuser',
+        'email': 'newuser.com',
+        'password': 'newpass'
+        }
+        res = self.client().post('/auth/register', data=details)
+        result = json.loads(res.data.decode())
+        self.assertEqual(result['message'], "Email Invalid. Do not include special characters.")
+
+    def test_invalid_username(self):
+        """
+        Test that a username must be valid
+        """
+        details = {
+        'username': '+-==-=',
+        'email': 'newuser.com',
+        'password': 'newpass'
+        }
+        res = self.client().post('/auth/register', data=details)
+        result = json.loads(res.data.decode())
+        self.assertEqual(result['message'], "Username cannot include special characters.")
 
     def test_login(self):
         """
@@ -68,6 +107,45 @@ class AuthTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 401)
         self.assertEqual(result['message'], "Login unsuccessful. Please register or confirm details.")
 
+    def test_empty_password(self):
+        """
+        Test a user cannot leave password field empty
+        """
+        res = self.client().post('/auth/register', data=self.user_details)
+        self.assertEqual(res.status_code, 201)
+        login_res = self.client().post('/auth/login', data={
+            'username': 'admin',
+            'email': 'admin@gmail.com',
+            'password': ''})
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['message'], "Password cannot be empty.")
+
+    def test_empty_email(self):
+        """
+        Test a user cannot leave email field empty
+        """
+        res = self.client().post('/auth/register', data=self.user_details)
+        self.assertEqual(res.status_code, 201)
+        login_res = self.client().post('/auth/login', data={
+            'username': 'admin',
+            'email': '',
+            'password': 'adminpass'})
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['message'], "Email cannot be empty.")
+
+    def test_empty_username(self):
+        """
+        Test a user cannot leave username field empty
+        """
+        res = self.client().post('/auth/register', data=self.user_details)
+        self.assertEqual(res.status_code, 201)
+        login_res = self.client().post('/auth/login', data={
+            'username': '',
+            'email': 'admin@gmail.com',
+            'password': 'adminpass'})
+        result = json.loads(login_res.data.decode())
+        self.assertEqual(result['message'], "Username cannot be empty.")
+       
     def tearDown(self):
         """
         Delete all initialized variables
