@@ -44,17 +44,20 @@ class RegistrationView(MethodView):
                         return make_response(jsonify(response)), 202
                 else:
                     response = {
-                    'message': "Password is too short."
+                    'message': "Password is either too short or empty.\
+            Please try again."
                     }
                     return make_response(jsonify(response)), 403
             else:
                 response = {
-                'message': "Email Invalid. Do not include special characters."
+                'message': "Email Invalid.\
+            Do not include special characters or leave the field empty."
                 }
                 return make_response(jsonify(response)), 403
         else:
             response = {
-            'message': "Username cannot include special characters."
+            'message': "Username can neither include special\
+            characters nor be empty."
             }
             return make_response(jsonify(response)), 403
 
@@ -84,7 +87,8 @@ class LoginView(MethodView):
                                 return make_response(jsonify(response)), 200
                         else:
                             response = {
-                            'message': 'Login unsuccessful. Please register or confirm details.'
+                            'message': "Login unsuccessful.\
+            Please register or confirm details."
                             }
                             return make_response(jsonify(response)), 401
                     except Exception as e:
@@ -108,6 +112,42 @@ class LoginView(MethodView):
             }
             return make_response(jsonify(response)), 403
 
+    def put(self, user_id):
+        """
+        Handles PUT requests
+        """
+        auth_header = request.headers.get('Authorization')
+        access_token = auth_header.split(" ")[1]
+        if access_token:
+            user_id = User.decode_token(access_token)
+            if not isinstance(user_id, str):
+                username = str(request.data.get('username', ''))
+                email = str(request.data.get('email', ''))
+                password = (request.data.get('password', ''))
+                user = User.query.filter_by(id=user_id).first()
+                if user:
+                    user.username = username
+                    user.email = email
+                    user.password = password
+                    user.save()
+                    response = {
+                    'current_username': user.username,
+                    'current_email': user.email,
+                    'current_password': user.password
+                    }
+                    return make_response(jsonify(response)), 200
+                else:
+                    response = {
+                    'message': "User does not exist."
+                    }
+                    return make_response(jsonify(response)), 404
+            else:
+                message = user_id
+                response = {
+                'message': message
+                }
+                return make_response(jsonify(response)), 401
+
 # define the API resource
 registration_view = RegistrationView.as_view('registration_view')
 login_view = LoginView.as_view('login_view')
@@ -122,3 +162,9 @@ auth_blueprint.add_url_rule(
     '/auth/login',
     view_func=login_view,
     methods=['POST'])
+
+auth_blueprint.add_url_rule(
+    '/auth/login/<int:user_id>',
+    view_func=login_view,
+    methods=['PUT'])
+   
