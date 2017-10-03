@@ -53,7 +53,8 @@ class AuthTestCase(unittest.TestCase):
         }
         res = self.client().post('/auth/register', data=details)
         result = json.loads(res.data.decode())
-        self.assertEqual(result['message'], "Password is too short.")
+        self.assertEqual(result['message'], "Password is either too short or empty.\
+            Please try again.")
 
     def test_invalid_email(self):
         """
@@ -66,7 +67,8 @@ class AuthTestCase(unittest.TestCase):
         }
         res = self.client().post('/auth/register', data=details)
         result = json.loads(res.data.decode())
-        self.assertEqual(result['message'], "Email Invalid. Do not include special characters.")
+        self.assertEqual(result['message'], "Email Invalid.\
+            Do not include special characters or leave the field empty.")
 
     def test_invalid_username(self):
         """
@@ -79,7 +81,8 @@ class AuthTestCase(unittest.TestCase):
         }
         res = self.client().post('/auth/register', data=details)
         result = json.loads(res.data.decode())
-        self.assertEqual(result['message'], "Username cannot include special characters.")
+        self.assertEqual(result['message'], "Username can neither include special\
+            characters nor be empty.")
 
     def test_login(self):
         """
@@ -105,7 +108,8 @@ class AuthTestCase(unittest.TestCase):
         res = self.client().post('/auth/login', data=unregistered_user)
         result = json.loads(res.data.decode())
         self.assertEqual(res.status_code, 401)
-        self.assertEqual(result['message'], "Login unsuccessful. Please register or confirm details.")
+        self.assertEqual(result['message'], "Login unsuccessful.\
+            Please register or confirm details.")
 
     def test_empty_password(self):
         """
