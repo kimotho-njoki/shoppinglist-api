@@ -115,10 +115,8 @@ def create_app(config_name):
         access_token = auth_header.split(" ")[1]
         if access_token:
             user_id = User.decode_token(access_token)
-            print user_id
             if not isinstance (user_id, str):
                 shoppinglist = ShoppingList.query.filter_by(id=list_id, user_id=user_id).first()
-                print shoppinglist
                 if shoppinglist:
                     response = jsonify({
                         'id' : shoppinglist.id,
