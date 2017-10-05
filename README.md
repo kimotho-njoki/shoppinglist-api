@@ -6,7 +6,7 @@ The ShoppingList application enables users to create accounts that enable them t
 
 ## Documentation
 The documentation of this API can be found at:
-> https://secure-springs-73848.herokuapp.com/
+> http://docs.shoppinglistapi6.apiary.io/#
 
 ## Getting Started
 #### Clone the repository
