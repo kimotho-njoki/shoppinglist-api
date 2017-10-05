@@ -29,6 +29,13 @@ def create_app(config_name):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
                     if name:
+                        if ShoppingList.query.filter_by(
+                            name=name, user_id=user_id).first() is not None:
+                            response = {
+                            'message': "Shoppinglist name already exists."
+                            }
+                            return make_response(jsonify(response)), 302
+
                         shoppinglist = ShoppingList(name=name, user_id=user_id)
                         shoppinglist.save()
                         response = jsonify({
@@ -38,26 +45,66 @@ def create_app(config_name):
                             'date_modified' : shoppinglist.date_modified
                         })
                         return make_response(response), 201
-                else:
-                    shoppinglists = ShoppingList.get_all(user_id)
-                    results = []
-                    for shoppinglist in shoppinglists:
-                        obj = {
-                        'id' : shoppinglist.id,
-                        'name' : shoppinglist.name,
-                        'date_created' : shoppinglist.date_created,
-                        'date_modified' : shoppinglist.date_modified
+                    else:
+                        response = {
+                        'message': "Please enter a name."
                         }
-                        results.append(obj)
-                    response = jsonify(results)
-                    return make_response(response), 200
+                        return make_response(jsonify(response)), 400
+                else:
+                    search_query = request.args.get("q")
+                    try:
+                        limit = int(request.args.get('limit', 10))
+                        page_no = int(request.args.get('page', 1))
+                    except ValueError:
+                        response = {
+                        'message': "Input must be an integer"
+                        }
+                        return make_response(jsonify(response)), 400
+
+                    if search_query:
+                        shoppinglists = ShoppingList.query.filter(ShoppingList.name.ilike(
+                            '%' + search_query + '%')).filter_by(user_id=user_id).all()
+                        results = []
+                        if not shoppinglists:
+                            response = {
+                            'message': "No shoppinglist found matching your input"
+                            }
+                            return make_response(jsonify(response)), 404
+                        for shoppinglist in shoppinglists:
+                            obj = {
+                            'id': shoppinglist.id,
+                            'name': shoppinglist.name,
+                            'date_created': shoppinglist.date_created,
+                            'date_modified': shoppinglist.date_modified
+                            }
+                            results.append(obj)
+                        response = jsonify(results)
+                        return make_response(response), 200
+
+                    paginated_shoplists = ShoppingList.query.filter_by(
+                        user_id=user_id).paginate(page_no, limit)
+                    all_results = []
+
+                    if not paginated_shoplists:
+                        response = {
+                        'message': "You do not have any shoppinglists"
+                        }
+                        return make_response(jsonify(response)), 404
+                    for shoplist in paginated_shoplists.items:
+                        obj = {
+                        'id': shoplist.id,
+                        'name': shoplist.name,
+                        'date_created': shoplist.date_created,
+                        'date_modified' : shoplist.date_modified
+                        }
+                        all_results.append(obj)
+                    return make_response(jsonify(all_results)), 200
             else:
                 message = user_id
                 response = {
                 'message' : message
                 }
                 return make_response(jsonify(response)), 401
-
 
     @app.route('/shoppinglists/<int:list_id>', methods=['GET'])
     def get_shoppinglist(list_id):
@@ -160,6 +207,12 @@ def create_app(config_name):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
                     if name:
+                        if ShoppingListItems.query.filter_by(
+                            name=name, list_id=list_id).first() is not None:
+                            response = {
+                            'message': "Item name already exists."
+                            }
+                            return make_response(jsonify(response)), 302
                         shoppinglistitem = ShoppingListItems(name=name, list_id=list_id)
                         shoppinglistitem.save()
                         response = jsonify({
@@ -170,18 +223,57 @@ def create_app(config_name):
                         })
                         return response, 201
                 else:
-                    shoppinglistitems = ShoppingListItems.get_all(list_id)
-                    results = []
-                    for shoppinglistitem in shoppinglistitems:
-                        obj = {
-                        'id': shoppinglistitem.id,
-                        'name': shoppinglistitem.name,
-                        'date_created': shoppinglistitem.date_created,
-                        'date_modified': shoppinglistitem.date_modified
+                    search_query = request.args.get("q")
+                    try:
+                        limit = int(request.args.get('limit', 10))
+                        page_no = int(request.args.get('page', 1))
+                    except ValueError:
+                        response = {
+                        'message': "Input must be an integer"
                         }
-                        results.append(obj)
-                    response = jsonify(results)
-                    return response, 200
+                        return make_response(jsonify(response)), 400
+
+                    if search_query:
+                        shoppinglistitems = ShoppingListItems.query.filter(
+                            ShoppingListItems.name.ilike('%' + search_query + '%')).filter_by(
+                            list_id=list_id).all()
+                        results = []
+
+                        if not shoppinglistitems:
+                            response = {
+                            'message': "No shopping items matching your input"
+                            }
+                            return make_response(jsonify(response)), 404
+                        for shoppinglistitem in shoppinglistitems:
+                            obj = {
+                            'id': shoppinglistitem.id,
+                            'name': shoppinglistitem.name,
+                            'date_created': shoppinglistitem.date_created,
+                            'date_modified': shoppinglistitem.date_modified
+                            }
+                            results.append(obj)
+                        response = jsonify(results)
+                        return response, 200
+
+                    paginated_shopitems = ShoppingListItems.query.filter_by(
+                        list_id=list_id).paginate(page_no, limit)
+                    all_results = []
+
+                    if not paginated_shopitems:
+                        response = {
+                        'message' : "Your shoppinglist has no items"
+                        }
+                        return make_response(jsonify(response)), 404
+                    for shopitem in paginated_shopitems.items:
+                        obj = {
+                        'id': shopitem.id,
+                        'name': shopitem.name,
+                        'date_created': shopitem.date_created,
+                        'date_modified': shopitem.date_modified
+                        }
+                        all_results.append(obj)
+                    response = jsonify(all_results)
+                    return response
             else:
                 message = user_id
                 response = {

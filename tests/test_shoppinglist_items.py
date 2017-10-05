@@ -60,10 +60,74 @@ class ShoppingItemTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 201)
         self.assertIn('shirt', str(res.data))
 
+    def test_item_creation_twice(self):
+        """
+        Test whether API can create the same item twice (POST request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)      
+        second_res = self.client().post(
+            '/shoppinglists/1/items',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist_item)
+        self.assertEqual(second_res.status_code, 201)
+        third_res = self.client().post(
+            '/shoppinglists/1/items',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist_item)
+        self.assertEqual(third_res.status_code, 302)
 
+    def test_search_existing_item(self):
+        """
+        Test whether API can search for an item (GET request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201) 
+        second_res = self.client().post(
+            '/shoppinglists/1/items',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist_item)
+        self.assertEqual(second_res.status_code, 201)     
+        res = self.client().get(
+            '/shoppinglists/1/items?q=shi',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist_item)
+        self.assertEqual(res.status_code, 200)
+        self.assertIn('shirt', str(res.data))
+
+    def test_search_nonexisting_item(self):
+        """
+        Test whether API can search for an non existing item (GET request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)      
+        res = self.client().get(
+            '/shoppinglists/1/items?q=kerchief',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist_item)
+        self.assertEqual(res.status_code, 404)
+        
     def test_get_all_items(self):
         """
-        Test whether API can get all items created
+        Test whether API can get all items created (GET request)
         """
         self.register_user()
         result = self.login_user()
