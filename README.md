@@ -4,6 +4,10 @@
 Flask API for a shopping list application.
 The ShoppingList application enables users to create accounts that enable them to Log In and create their own shopping lists as well as add items. 
 
+## Documentation
+The documentation of this API can be found at:
+> https://secure-springs-73848.herokuapp.com/
+
 ## Getting Started
 #### Clone the repository
 > https://github.com/kimotho-njoki/shoppinglist-api
