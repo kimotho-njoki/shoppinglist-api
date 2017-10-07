@@ -13,7 +13,7 @@ class ShoppingItemTestCase(unittest.TestCase):
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.shoppinglist = {'name': 'clothes'}
-        self.shoppinglist_item = {'name': 'shirt', 'list_id': 1}
+        self.shoppinglist_item = {'name': 'shirt', 'budgeted_amount': 100, 'list_id': 1}
 
         with self.app.app_context():
             db.drop_all()
@@ -188,7 +188,7 @@ class ShoppingItemTestCase(unittest.TestCase):
         second_res = self.client().put(
             '/shoppinglists/1/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),
-            data={'name': 'trouser'})
+            data={'name': 'trouser', 'budgeted_amount': 200})
         self.assertEqual(second_res.status_code, 200)
 
         third_res = self.client().get(
