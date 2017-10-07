@@ -132,15 +132,17 @@ class ShoppingListItems(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(256), nullable=False)
+    budgeted_amount = db.Column(db.Integer)
     list_id = db.Column(db.Integer, db.ForeignKey(ShoppingList.id))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
 
-    def __init__(self, name, list_id):
+    def __init__(self, name, budgeted_amount, list_id):
         """
         Initialize items with name and list_id
         """
         self.name = name
+        self.budgeted_amount = budgeted_amount
         self.list_id = list_id
 
     def save(self):
