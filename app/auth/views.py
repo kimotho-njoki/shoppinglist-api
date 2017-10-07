@@ -82,6 +82,7 @@ class LoginView(MethodView):
                             if access_token:
                                 response = {
                                 'message': 'You logged in successfully.',
+                                'user_id': user.id,
                                 'access_token' : access_token.decode()
                                 }
                                 return make_response(jsonify(response)), 200
@@ -123,19 +124,38 @@ class LoginView(MethodView):
             if not isinstance(user_id, str):
                 username = str(request.data.get('username', ''))
                 email = str(request.data.get('email', ''))
-                password = (request.data.get('password', ''))
+                password = str(request.data.get('password', ''))
+                regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
                 user = User.query.filter_by(id=user_id).first()
                 if user:
-                    user.username = username
-                    user.email = email
-                    user.password = password
-                    user.save()
-                    response = {
-                    'current_username': user.username,
-                    'current_email': user.email,
-                    'current_password': user.password
-                    }
-                    return make_response(jsonify(response)), 200
+                    if re.match("^[a-zA-Z0-9 _]*$", username) and not username == '':
+                        if re.match(regex, email) and not email == '':
+                            if len(password) > 6 and not password == '':
+                                user.username = username
+                                user.email = email
+                                user.password = password
+                                user.save()
+                                response = {
+                                'current_username': user.username,
+                                'current_email': user.email,
+                                'current_password': user.password
+                                }
+                                return make_response(jsonify(response)), 200
+                            else:
+                                response = {
+                                'message': "Password is either too short or empty."
+                                }
+                                return make_response(jsonify(response)), 400
+                        else:
+                            response = {
+                            'message': "Email Invalid. Please input field with correct format."
+                            }
+                            return make_response(jsonify(response)), 400
+                    else:
+                        response = {
+                        'message': "Username can neither include special characters nor be empty."
+                        }
+                        return make_response(jsonify(response)), 400
                 else:
                     response = {
                     'message': "User does not exist."
