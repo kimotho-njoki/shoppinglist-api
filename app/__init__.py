@@ -28,7 +28,7 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
-                    if name:
+                    if name and not name == '':
                         if ShoppingList.query.filter_by(
                             name=name, user_id=user_id).first() is not None:
                             response = {
@@ -156,16 +156,22 @@ def create_app(config_name):
                     return make_response(jsonify(response)), 404
                 if request.method == 'PUT':
                     name = str(request.data.get('name', ''))
-                    shoppinglist.name = name
-                    shoppinglist.save()
-                    response = jsonify({
-                        'id' : shoppinglist.id,
-                        'name' : shoppinglist.name,
-                        'date_created' : shoppinglist.date_created,
-                        'date_modified' : shoppinglist.date_modified
-                    })
-                    response.status_code = 200
-                    return response
+                    if name and not name == '':
+                        shoppinglist.name = name
+                        shoppinglist.save()
+                        response = jsonify({
+                            'id' : shoppinglist.id,
+                            'name' : shoppinglist.name,
+                            'date_created' : shoppinglist.date_created,
+                            'date_modified' : shoppinglist.date_modified
+                        })
+                        response.status_code = 200
+                        return response
+                    else:
+                        response = {
+                        'message': "Please enter a name."
+                        }
+                        return make_response(jsonify(response)), 400
             else:
                 message = user_id
                 response = {
@@ -213,15 +219,15 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
-                    budgeted_amount = request.data.get('budgeted_amount', '')
-                    if name:
+                    budgeted_amount = request.data.get('budgeted_amount', 0)
+                    if name and not name == '':
                         if ShoppingListItems.query.filter_by(
                             name=name, list_id=list_id).first() is not None:
                             response = {
                             'message': "Item name already exists."
                             }
                             return make_response(jsonify(response)), 302
-                        if not isinstance (budgeted_amount, str):
+                        if not isinstance (budgeted_amount, str) and not budgeted_amount == '':
                             shoppinglistitem = ShoppingListItems(name=name, budgeted_amount=budgeted_amount, list_id=list_id)
                             shoppinglistitem.save()
                             response = jsonify({
@@ -234,7 +240,7 @@ def create_app(config_name):
                             return response, 201
                         else:
                             response = {
-                            'message': "Input must be a number."
+                            'message': "Input must be a number. It cannot be empty."
                             }
                             return make_response(jsonify(response)), 400
                     else:
@@ -354,23 +360,29 @@ def create_app(config_name):
                     return make_response(jsonify(response)), 404
                 if request.method == 'PUT':
                     name = str(request.data.get('name', ''))
-                    budgeted_amount = request.data.get('budgeted_amount', '')
-                    if not isinstance (budgeted_amount, str):
-                        shoppinglistitem.name = name
-                        shoppinglistitem.budgeted_amount = budgeted_amount
-                        shoppinglistitem.save()
-                        response = jsonify({
-                            'id': shoppinglistitem.id,
-                            'name': shoppinglistitem.name,
-                            'budgeted_amount': shoppinglistitem.budgeted_amount,
-                            'date_created': shoppinglistitem.date_created,
-                            'date_modified': shoppinglistitem.date_modified
-                        })
-                        response.status_code = 200
-                        return response
+                    budgeted_amount = request.data.get('budgeted_amount', 0)
+                    if name and not name == '':
+                        if not isinstance (budgeted_amount, str) and not budgeted_amount == '':
+                            shoppinglistitem.name = name
+                            shoppinglistitem.budgeted_amount = budgeted_amount
+                            shoppinglistitem.save()
+                            response = jsonify({
+                                'id': shoppinglistitem.id,
+                                'name': shoppinglistitem.name,
+                                'budgeted_amount': shoppinglistitem.budgeted_amount,
+                                'date_created': shoppinglistitem.date_created,
+                                'date_modified': shoppinglistitem.date_modified
+                            })
+                            response.status_code = 200
+                            return response
+                        else:
+                            response = {
+                            'message': "Input must be a number. It cannot be empty."
+                            }
+                            return make_response(jsonify(response)), 400
                     else:
                         response = {
-                        'message': "Input must be a number."
+                        'message': "Please enter a name."
                         }
                         return make_response(jsonify(response)), 400
             else:
