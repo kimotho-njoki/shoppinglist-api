@@ -127,7 +127,10 @@ def create_app(config_name):
                     response.status_code = 200
                     return response
                 else:
-                    abort(404)
+                    response = {
+                    'message': "Shoppinglist does not exist"
+                    }
+                    return make_response(jsonify(response)), 404
             else:
                 message = user_id
                 response = {
@@ -147,7 +150,10 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 shoppinglist = ShoppingList.query.filter_by(id=list_id, user_id=user_id).first()
                 if not shoppinglist:
-                    abort(404)
+                    response = {
+                    'message': "Shoppinglist does not exist"
+                    }
+                    return make_response(jsonify(response)), 404
                 if request.method == 'PUT':
                     name = str(request.data.get('name', ''))
                     shoppinglist.name = name
@@ -179,7 +185,10 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 shoppinglist = ShoppingList.query.filter_by(id=list_id, user_id=user_id).first()
                 if not shoppinglist:
-                    abort(404)
+                    response = {
+                    'message': "Shoppinglist does not exist"
+                    }
+                    return make_response(jsonify(response)), 404
                 if request.method == 'DELETE':
                     shoppinglist.delete()
                     return {
@@ -204,6 +213,7 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
+                    budgeted_amount = request.data.get('budgeted_amount', '')
                     if name:
                         if ShoppingListItems.query.filter_by(
                             name=name, list_id=list_id).first() is not None:
@@ -211,15 +221,27 @@ def create_app(config_name):
                             'message': "Item name already exists."
                             }
                             return make_response(jsonify(response)), 302
-                        shoppinglistitem = ShoppingListItems(name=name, list_id=list_id)
-                        shoppinglistitem.save()
-                        response = jsonify({
-                            'id': shoppinglistitem.id,
-                            'name': shoppinglistitem.name,
-                            'date_created': shoppinglistitem.date_created,
-                            'date_modified': shoppinglistitem.date_modified
-                        })
-                        return response, 201
+                        if not isinstance (budgeted_amount, str):
+                            shoppinglistitem = ShoppingListItems(name=name, budgeted_amount=budgeted_amount, list_id=list_id)
+                            shoppinglistitem.save()
+                            response = jsonify({
+                                'id': shoppinglistitem.id,
+                                'name': shoppinglistitem.name,
+                                'budgeted_amount': shoppinglistitem.budgeted_amount,
+                                'date_created': shoppinglistitem.date_created,
+                                'date_modified': shoppinglistitem.date_modified
+                            })
+                            return response, 201
+                        else:
+                            response = {
+                            'message': "Input must be a number."
+                            }
+                            return make_response(jsonify(response)), 400
+                    else:
+                        response = {
+                        'message': "Please enter a name."
+                        }
+                        return make_response(jsonify(response)), 400
                 else:
                     search_query = request.args.get("q")
                     try:
@@ -246,6 +268,7 @@ def create_app(config_name):
                             obj = {
                             'id': shoppinglistitem.id,
                             'name': shoppinglistitem.name,
+                            'budgeted_amount': shoppinglistitem.budgeted_amount,
                             'date_created': shoppinglistitem.date_created,
                             'date_modified': shoppinglistitem.date_modified
                             }
@@ -266,6 +289,7 @@ def create_app(config_name):
                         obj = {
                         'id': shopitem.id,
                         'name': shopitem.name,
+                        'budgeted_amount': shopitem.budgeted_amount,
                         'date_created': shopitem.date_created,
                         'date_modified': shopitem.date_modified
                         }
@@ -294,13 +318,17 @@ def create_app(config_name):
                     response = jsonify({
                         'id': shoppinglistitem.id,
                         'name': shoppinglistitem.name,
+                        'budgeted_amount': shoppinglistitem.budgeted_amount,
                         'date_created': shoppinglistitem.date_created,
                         'date_modified': shoppinglistitem.date_modified
                     })
                     response.status_code = 200
                     return response
                 else:
-                    abort(404)
+                    response = {
+                    'message': "Item does not exist"
+                    }
+                    return make_response(jsonify(response)), 404
             else:
                 message = user_id
                 response = {
@@ -320,19 +348,31 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 shoppinglistitem = ShoppingListItems.query.filter_by(id=item_id, list_id=list_id).first()
                 if not shoppinglistitem:
-                    abort(404)
+                    response = {
+                    'message': "Item does not exist"
+                    }
+                    return make_response(jsonify(response)), 404
                 if request.method == 'PUT':
                     name = str(request.data.get('name', ''))
-                    shoppinglistitem.name = name
-                    shoppinglistitem.save()
-                    response = jsonify({
-                        'id': shoppinglistitem.id,
-                        'name': shoppinglistitem.name,
-                        'date_created': shoppinglistitem.date_created,
-                        'date_modified': shoppinglistitem.date_modified
-                    })
-                    response.status_code = 200
-                    return response
+                    budgeted_amount = request.data.get('budgeted_amount', '')
+                    if not isinstance (budgeted_amount, str):
+                        shoppinglistitem.name = name
+                        shoppinglistitem.budgeted_amount = budgeted_amount
+                        shoppinglistitem.save()
+                        response = jsonify({
+                            'id': shoppinglistitem.id,
+                            'name': shoppinglistitem.name,
+                            'budgeted_amount': shoppinglistitem.budgeted_amount,
+                            'date_created': shoppinglistitem.date_created,
+                            'date_modified': shoppinglistitem.date_modified
+                        })
+                        response.status_code = 200
+                        return response
+                    else:
+                        response = {
+                        'message': "Input must be a number."
+                        }
+                        return make_response(jsonify(response)), 400
             else:
                 message = user_id
                 response = {
@@ -352,7 +392,10 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 shoppinglistitem = ShoppingListItems.query.filter_by(id=item_id, list_id=list_id).first()
                 if not shoppinglistitem:
-                    abort(404)
+                    response = {
+                    'message': "Item does not exist"
+                    }
+                    return make_response(jsonify(response)), 404
                 if request.method == 'DELETE':
                     shoppinglistitem.delete()
                     return {
