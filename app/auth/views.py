@@ -14,7 +14,7 @@ class RegistrationView(MethodView):
         """
         username = str(request.data.get('username'))
         email = str(request.data.get('email'))
-        password = request.data.get('password')
+        password = str(request.data.get('password'))
         regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
         if re.match("^[a-zA-Z0-9 _]*$", username) and not username == '':
             if re.match(regex, email) and not email == '':
@@ -71,7 +71,7 @@ class LoginView(MethodView):
         """
         username = str(request.data.get('username'))
         email = str(request.data.get('email'))
-        password = request.data.get('password')
+        password = str(request.data.get('password'))
         if not username == '':
             if not email == '':
                 if not password == '':
