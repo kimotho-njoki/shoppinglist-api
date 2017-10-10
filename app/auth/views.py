@@ -16,9 +16,9 @@ class RegistrationView(MethodView):
         email = str(request.data.get('email'))
         password = str(request.data.get('password'))
         regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
-        if re.match("^[a-zA-Z0-9 _]*$", username) and not username == '':
-            if re.match(regex, email) and not email == '':
-                if len(password) > 6 and not password == '':
+        if re.match("^[a-zA-Z0-9 _]*$", username) and username.strip():
+            if re.match(regex, email) and email.strip():
+                if len(password) > 6 and password.strip():
                     user = User.query.filter_by(username=username).first()
 
                     if not user:
@@ -72,9 +72,9 @@ class LoginView(MethodView):
         username = str(request.data.get('username'))
         email = str(request.data.get('email'))
         password = str(request.data.get('password'))
-        if not username == '':
-            if not email == '':
-                if not password == '':
+        if username.strip():
+            if email.strip():
+                if password.strip():
                     try:
                         user = User.query.filter_by(username=username).first()
                         if user and user.password_is_valid(password):
@@ -128,9 +128,9 @@ class LoginView(MethodView):
                 regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
                 user = User.query.filter_by(id=user_id).first()
                 if user:
-                    if re.match("^[a-zA-Z0-9 _]*$", username) and not username == '':
-                        if re.match(regex, email) and not email == '':
-                            if len(password) > 6 and not password == '':
+                    if re.match("^[a-zA-Z0-9 _]*$", username) and username.strip():
+                        if re.match(regex, email) and email.strip():
+                            if len(password) > 6 and password.strip():
                                 user.username = username
                                 user.email = email
                                 user.password = password
