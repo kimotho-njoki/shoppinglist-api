@@ -12,7 +12,7 @@ def create_app(config_name):
     app.url_map.strict_slashes=False
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
-    app.config['SQLALCHEMY_TRACK_MODIFICAIONS']=False
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     # prepare application to work with SQLAlchemy
     db.init_app(app)
 
@@ -234,6 +234,7 @@ def create_app(config_name):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
                     budgeted_amount = request.data.get('budgeted_amount', 0)
+                    print("?????", budgeted_amount)
                     if name and name.strip():
                         if ShoppingListItems.query.filter_by(
                             name=name, list_id=list_id).first() is not None:
@@ -241,7 +242,7 @@ def create_app(config_name):
                             'message': "Item name already exists."
                             }
                             return make_response(jsonify(response)), 302
-                        if not isinstance (budgeted_amount, str) and not budgeted_amount == '':
+                        if not isinstance(budgeted_amount, str):
                             shoppinglistitem = ShoppingListItems(name=name, budgeted_amount=budgeted_amount, list_id=list_id)
                             shoppinglistitem.save()
                             response = jsonify({
@@ -317,10 +318,10 @@ def create_app(config_name):
                     next_page = 'None'
                     prev_page = 'None'
                     if paginated_shopitems.has_next:
-                        next_page = '/shoppinglists/list_id/items' + '?limit=' + str(limit) +\
+                        next_page = '/shoppinglists/' + str(list_id) + '/items' + '?limit=' + str(limit) +\
                         '&page=' + str(page_no + 1)
                     if paginated_shopitems.has_prev:
-                        prev_page = '/shoppinglists/list_id/items' + '?limit=' + str(limit) +\
+                        prev_page = '/shoppinglists/' + str(list_id) + '/items' + '?limit=' + str(limit) +\
                         '&page=' + str(page_no - 1)
                     response = {
                     'shoppingitems': all_results,
