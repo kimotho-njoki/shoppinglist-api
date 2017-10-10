@@ -16,7 +16,7 @@ class ShoppinglistTestCase(unittest.TestCase):
         self.shoppinglist = {'name': 'clothes'}
 
         with self.app.app_context():
-            db.drop_all()
+            # db.drop_all()
             db.create_all()
 
     def register_user(self, username="test", email="test@gmail.com", password="testpass"):
@@ -75,6 +75,19 @@ class ShoppinglistTestCase(unittest.TestCase):
         result = json.loads(second_res.data.decode())
         self.assertEqual(result['message'], "Shoppinglist name already exists.")
 
+    def test_no_name_shoppinglist_creation(self):
+        """
+        Test whether API can can take a blank name field (POST request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data={'name': ''})
+        self.assertIn('enter a name', str(res.data))
+
     def test_search_existing_shoppinglist(self):
         """
         Test whether API can search for a shoppinglist (GET request)
@@ -111,6 +124,78 @@ class ShoppinglistTestCase(unittest.TestCase):
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist)
         self.assertEqual(res.status_code, 404)
+
+    def test_correct_page_no(self):
+        """
+        Test whether API can take a correct page no (GET request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        res = self.client().get(
+            '/shoppinglists/?limit=1&page=1',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 200)
+
+    def test_incorrect_page_no(self):
+        """
+        Test whether API can take an incorrect page no (GET request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        res = self.client().get(
+            '/shoppinglists/?limit=1&page=ww',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertIn('must be an integer', str(res.data))
+
+    def test_correct_limit_no(self):
+        """
+        Test whether API can take a correct limit no (GET request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        res = self.client().get(
+            '/shoppinglists/?limit=1&page=1',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 200)
+
+    def test_incorrect_limit_no(self):
+        """
+        Test whether API can take an incorrect limit no (GET request)
+        """
+        self.register_user()
+        result = self.login_user()
+        access_token = json.loads(result.data.decode())['access_token']
+        res = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertEqual(res.status_code, 201)
+        res = self.client().get(
+            '/shoppinglists/?limit=one&page=1',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        self.assertIn('must be an integer', str(res.data))
 
     def test_read_all_shoppinglists(self):
         """

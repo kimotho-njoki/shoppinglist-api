@@ -16,10 +16,10 @@ class RegistrationView(MethodView):
         email = str(request.data.get('email'))
         password = str(request.data.get('password'))
         regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
-        if re.match("^[a-zA-Z0-9 _]*$", username) and not username == '':
-            if re.match(regex, email) and not email == '':
-                if len(password) > 6 and not password == '':
-                    user = User.query.filter_by(username=username).first()
+        if re.match("^[a-zA-Z0-9 _]*$", username) and username.strip():
+            if re.match(regex, email) and email.strip():
+                if len(password) > 6 and password.strip():
+                    user = User.query.filter_by(username=username, email=email).first()
 
                     if not user:
                         try:
@@ -44,20 +44,20 @@ class RegistrationView(MethodView):
                         return make_response(jsonify(response)), 202
                 else:
                     response = {
-                    'message': "Password is either too short or empty.\
-            Please try again."
+                    'message': "Password is either too short or empty."\
+            "Please try again."
                     }
                     return make_response(jsonify(response)), 403
             else:
                 response = {
-                'message': "Email Invalid.\
-            Do not include special characters or leave the field empty."
+                'message': "Email Invalid."\
+            "Do not include special characters or leave the field empty."
                 }
                 return make_response(jsonify(response)), 403
         else:
             response = {
-            'message': "Username can neither include special\
-            characters nor be empty."
+            'message': "Username can neither include special"\
+            "characters nor be empty."
             }
             return make_response(jsonify(response)), 403
 
@@ -72,11 +72,11 @@ class LoginView(MethodView):
         username = str(request.data.get('username'))
         email = str(request.data.get('email'))
         password = str(request.data.get('password'))
-        if not username == '':
-            if not email == '':
-                if not password == '':
+        if username.strip():
+            if email.strip():
+                if password.strip():
                     try:
-                        user = User.query.filter_by(username=username).first()
+                        user = User.query.filter_by(username=username, email=email).first()
                         if user and user.password_is_valid(password):
                             access_token = user.encode_auth_token(user.id)
                             if access_token:
@@ -88,8 +88,8 @@ class LoginView(MethodView):
                                 return make_response(jsonify(response)), 200
                         else:
                             response = {
-                            'message': "Login unsuccessful.\
-            Please register or confirm details."
+                            'message': "Login unsuccessful."\
+            "Please register or confirm details."
                             }
                             return make_response(jsonify(response)), 401
                     except Exception as e:
@@ -128,9 +128,9 @@ class LoginView(MethodView):
                 regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
                 user = User.query.filter_by(id=user_id).first()
                 if user:
-                    if re.match("^[a-zA-Z0-9 _]*$", username) and not username == '':
-                        if re.match(regex, email) and not email == '':
-                            if len(password) > 6 and not password == '':
+                    if re.match("^[a-zA-Z0-9 _]*$", username) and username.strip():
+                        if re.match(regex, email) and email.strip():
+                            if len(password) > 6 and password.strip():
                                 user.username = username
                                 user.email = email
                                 user.password = password

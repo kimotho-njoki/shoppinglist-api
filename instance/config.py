@@ -20,7 +20,7 @@ class TestingConfig(Config):
     Testing configurations
     """
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:2.9.0.1.@localhost/shoplistapi_db'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://@localhost/shoplistapi_db'
     DEBUG = True
 
 class StagingConfig(Config):
