@@ -19,7 +19,7 @@ class AuthTestCase(unittest.TestCase):
         'password':'adminpass'
         }
         with self.app.app_context():
-            db.drop_all()
+            # db.drop_all()
             db.create_all()
     
     def test_successful_registration(self):
