@@ -50,7 +50,7 @@ class RegistrationView(MethodView):
                     return make_response(jsonify(response)), 403
             else:
                 response = {
-                'message': "Email Invalid"\
+                'message': "Email Invalid."\
             "Do not include special characters or leave the field empty."
                 }
                 return make_response(jsonify(response)), 403
