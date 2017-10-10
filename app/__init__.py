@@ -9,6 +9,7 @@ db = SQLAlchemy()
 def create_app(config_name):
     from app.models import ShoppingList, User, ShoppingListItems
     app = FlaskAPI(__name__, instance_relative_config=True)
+    app.url_map.strict_slashes=False
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICAIONS']=False
@@ -28,7 +29,7 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
-                    if name and not name == '':
+                    if name and name.strip():
                         if ShoppingList.query.filter_by(
                             name=name, user_id=user_id).first() is not None:
                             response = {
@@ -98,7 +99,20 @@ def create_app(config_name):
                         'date_modified' : shoplist.date_modified
                         }
                         all_results.append(obj)
-                    return make_response(jsonify(all_results)), 200
+                    next_page = 'None'
+                    prev_page = 'None'
+                    if paginated_shoplists.has_next:
+                        next_page = '/shoppinglists/' + '?limit=' + str(limit) +\
+                        '&page=' + str(page_no + 1)
+                    if paginated_shoplists.has_prev:
+                        prev_page = '/shoppinglists/' + '?limit=' + str(limit) +\
+                        '&page=' + str(page_no - 1)
+                    response = {
+                    'shoppinglists': all_results,
+                    'previous_page': prev_page,
+                    'next_page': next_page
+                    }
+                    return make_response(jsonify(response)), 200
             else:
                 message = user_id
                 response = {
@@ -156,7 +170,7 @@ def create_app(config_name):
                     return make_response(jsonify(response)), 404
                 if request.method == 'PUT':
                     name = str(request.data.get('name', ''))
-                    if name and not name == '':
+                    if name and name.strip():
                         shoppinglist.name = name
                         shoppinglist.save()
                         response = jsonify({
@@ -220,7 +234,7 @@ def create_app(config_name):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
                     budgeted_amount = request.data.get('budgeted_amount', 0)
-                    if name and not name == '':
+                    if name and name.strip():
                         if ShoppingListItems.query.filter_by(
                             name=name, list_id=list_id).first() is not None:
                             response = {
@@ -300,8 +314,20 @@ def create_app(config_name):
                         'date_modified': shopitem.date_modified
                         }
                         all_results.append(obj)
-                    response = jsonify(all_results)
-                    return response
+                    next_page = 'None'
+                    prev_page = 'None'
+                    if paginated_shopitems.has_next:
+                        next_page = '/shoppinglists/list_id/items' + '?limit=' + str(limit) +\
+                        '&page=' + str(page_no + 1)
+                    if paginated_shopitems.has_prev:
+                        prev_page = '/shoppinglists/list_id/items' + '?limit=' + str(limit) +\
+                        '&page=' + str(page_no - 1)
+                    response = {
+                    'shoppingitems': all_results,
+                    'previous_page': prev_page,
+                    'next_page': next_page
+                    }
+                    return make_response(jsonify(response)), 200
             else:
                 message = user_id
                 response = {
@@ -361,7 +387,7 @@ def create_app(config_name):
                 if request.method == 'PUT':
                     name = str(request.data.get('name', ''))
                     budgeted_amount = request.data.get('budgeted_amount', 0)
-                    if name and not name == '':
+                    if name and name.strip():
                         if not isinstance (budgeted_amount, str) and not budgeted_amount == '':
                             shoppinglistitem.name = name
                             shoppinglistitem.budgeted_amount = budgeted_amount
