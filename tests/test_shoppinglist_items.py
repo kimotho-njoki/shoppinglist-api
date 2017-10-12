@@ -14,45 +14,32 @@ class ShoppingItemTestCase(unittest.TestCase):
         self.client = self.app.test_client
         self.shoppinglist = {'name': 'clothes'}
         self.shoppinglist_item = {'name': 'shirt', 'budgeted_amount': 100, 'list_id': 1}
+        self.user_details = {
+        'username': 'test',
+        'email': 'test@gmail.com',
+        'password': 'testpass'}
 
         with self.app.app_context():
-            # db.drop_all()
             db.create_all()
 
-    def register_user(self, username="test", email="test@gmail.com", password="testpass"):
+    def user_register_login(self):
         """
-        Helper method to assist in registering users
+        Helper method to assist in registering and login in users
         """
-        user_details = {
-        'username': username,
-        'email': email,
-        'password': password
-        }
-        return self.client().post('/auth/register', data=user_details)
-
-    def login_user(self, username="test", email="test@gmail.com", password="testpass"):
-        """
-        Helper method to assist in logging in users
-        """
-        user_details = {
-        'username': username,
-        'email': email,
-        'password': password
-        }
-        return self.client().post('/auth/login', data=user_details)
+        res = self.client().post('/auth/register', data=self.user_details)
+        resp = self.client().post('/auth/login', data=self.user_details)
+        access_token = json.loads(resp.data.decode())['access_token']
+        result = self.client().post(
+            '/shoppinglists/',
+            headers=dict(Authorization="Bearer " + access_token),
+            data=self.shoppinglist)
+        return access_token
         
     def test_item_creation(self):
         """
         Test whether API can create an item (POST request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)      
+        access_token = self.user_register_login()
         res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
@@ -64,19 +51,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can create the same item twice (POST request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)      
+        access_token = self.user_register_login()      
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist_item)
-        self.assertEqual(second_res.status_code, 201)
         third_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
@@ -87,14 +66,7 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can take a blank name field (POST request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)      
+        access_token = self.user_register_login()      
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
@@ -106,19 +78,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can search for an item (GET request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201) 
+        access_token = self.user_register_login() 
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist_item)
-        self.assertEqual(second_res.status_code, 201)     
+            data=self.shoppinglist_item)     
         res = self.client().get(
             '/shoppinglists/1/items?q=shi',
             headers=dict(Authorization="Bearer " + access_token),
@@ -130,14 +94,7 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can search for an non existing item (GET request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)      
+        access_token = self.user_register_login()      
         res = self.client().get(
             '/shoppinglists/1/items?q=kerchief',
             headers=dict(Authorization="Bearer " + access_token),
@@ -148,19 +105,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can take a correct page no (GET request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist_item)
-        self.assertEqual(second_res.status_code, 201)           
+            data=self.shoppinglist_item)           
         res = self.client().get(
             '/shoppinglists/1/items?limit=1&page=1',
             headers=dict(Authorization="Bearer " + access_token),
@@ -171,19 +120,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can take an incorrect page no (GET request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist_item)
-        self.assertEqual(second_res.status_code, 201)           
+            data=self.shoppinglist_item)           
         res = self.client().get(
             '/shoppinglists/1/items?limit=1&page=one',
             headers=dict(Authorization="Bearer " + access_token),
@@ -194,19 +135,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can take a correct limit no
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist_item)
-        self.assertEqual(second_res.status_code, 201)           
+            data=self.shoppinglist_item)          
         res = self.client().get(
             '/shoppinglists/1/items?limit=1&page=1',
             headers=dict(Authorization="Bearer " + access_token),
@@ -217,19 +150,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can take an incorrect limit no
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         second_res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist_item)
-        self.assertEqual(second_res.status_code, 201)           
+            data=self.shoppinglist_item)           
         res = self.client().get(
             '/shoppinglists/1/items?limit=one&page=1',
             headers=dict(Authorization="Bearer " + access_token),
@@ -240,14 +165,7 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can get all items created (GET request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         res = self.client().get('/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist_item)
@@ -257,19 +175,11 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can get a single shoppinglist item created (GET request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         res = self.client().post(
             '/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist_item)
-        self.assertEqual(res.status_code, 201)
         results = json.loads(res.data.decode())
         result = self.client().get(
             '/shoppinglists/1/items/{}'.format(results['id']),
@@ -282,25 +192,16 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can update an item creates (PUT request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         res = self.client().post('/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist_item)
-        self.assertEqual(res.status_code, 201)
         results = json.loads(res.data.decode())
 
         second_res = self.client().put(
             '/shoppinglists/1/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token),
             data={'name': 'trouser', 'budgeted_amount': 200})
-        self.assertEqual(second_res.status_code, 200)
 
         third_res = self.client().get(
             '/shoppinglists/1/items/{}'.format(results['id']),
@@ -311,24 +212,15 @@ class ShoppingItemTestCase(unittest.TestCase):
         """
         Test whether API can delete an item created (DELETE request)
         """
-        self.register_user()
-        result = self.login_user()
-        access_token = json.loads(result.data.decode())['access_token']
-        res = self.client().post(
-            '/shoppinglists/',
-            headers=dict(Authorization="Bearer " + access_token),
-            data=self.shoppinglist)
-        self.assertEqual(res.status_code, 201)
+        access_token = self.user_register_login()
         res = self.client().post('/shoppinglists/1/items',
             headers=dict(Authorization="Bearer " + access_token),
             data=self.shoppinglist_item)
-        self.assertEqual(res.status_code, 201)
         results = json.loads(res.data.decode())
 
         result = self.client().delete(
             '/shoppinglists/1/items/{}'.format(results['id']),
             headers=dict(Authorization="Bearer " + access_token))
-        self.assertEqual(result.status_code, 200)
 
         second_res = self.client().get(
             '/shoppinglists/1/items/{}'.format(results['id']),

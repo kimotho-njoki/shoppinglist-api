@@ -35,9 +35,7 @@ class AuthTestCase(unittest.TestCase):
         Test that a user cannot register twice
         """
         res = self.client().post('/auth/register', data=self.user_details)
-        self.assertEqual(res.status_code, 201)
         secondres = self.client().post('/auth/register', data=self.user_details)
-        self.assertEqual(secondres.status_code, 202)
         result = json.loads(secondres.data.decode())
         self.assertEqual(result['message'], "You are already registered. Please login.")
 
@@ -88,7 +86,6 @@ class AuthTestCase(unittest.TestCase):
         Test that a user with an account can login
         """
         res = self.client().post('/auth/register', data=self.user_details)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/auth/login', data=self.user_details)
         result = json.loads(login_res.data.decode())
         self.assertEqual(result['message'], "You logged in successfully.")
@@ -115,7 +112,6 @@ class AuthTestCase(unittest.TestCase):
         Test a user cannot leave password field empty
         """
         res = self.client().post('/auth/register', data=self.user_details)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/auth/login', data={
             'username': 'admin',
             'email': 'admin@gmail.com',
@@ -128,7 +124,6 @@ class AuthTestCase(unittest.TestCase):
         Test a user cannot leave email field empty
         """
         res = self.client().post('/auth/register', data=self.user_details)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/auth/login', data={
             'username': 'admin',
             'email': '',
@@ -141,7 +136,6 @@ class AuthTestCase(unittest.TestCase):
         Test a user cannot leave username field empty
         """
         res = self.client().post('/auth/register', data=self.user_details)
-        self.assertEqual(res.status_code, 201)
         login_res = self.client().post('/auth/login', data={
             'username': '',
             'email': 'admin@gmail.com',
