@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 from app import db
 from flask_bcrypt import Bcrypt
 import jwt
-
 SECRET_KEY = 'my_secret_random_key'
 
 class User(db.Model):
@@ -13,9 +12,9 @@ class User(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(256), nullable=False, unique=True)
-    email = db.Column(db.String(256), nullable=False)
-    password = db.Column(db.String(256), nullable=False)
+    username = db.Column(db.String(100), nullable=False, unique=True)
+    email = db.Column(db.String(150), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
     shoplists = db.relationship('ShoppingList', order_by='ShoppingList.id', cascade="all, delete-orphan")
@@ -83,7 +82,7 @@ class ShoppingList(db.Model):
     __tablename__ = 'shoplists'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(256), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey(User.id))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
@@ -131,8 +130,8 @@ class ShoppingListItems(db.Model):
     __tablename__ = 'shoplist_items'
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(256), nullable=False)
-    budgeted_amount = db.Column(db.Integer)
+    name = db.Column(db.String(100), nullable=False)
+    budgeted_amount = db.Column(db.Float)
     list_id = db.Column(db.Integer, db.ForeignKey(ShoppingList.id))
     date_created = db.Column(db.DateTime, default=db.func.current_timestamp())
     date_modified = db.Column(db.DateTime, default=db.func.current_timestamp(), onupdate=db.func.current_timestamp())
