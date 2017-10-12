@@ -13,8 +13,22 @@ def create_app(config_name):
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    # prepare application to work with SQLAlchemy
     db.init_app(app)
+
+    @app.errorhandler(404)
+    def page_not_found(error=None):
+        response = {
+        'message': "Url page not found"
+        }
+        return make_response(jsonify(response))
+
+    @app.errorhandler(405)
+    def server_error(error):
+        response = {
+        'message': "The server encountered an unexpected"\
+        " condition which prevented it from fulfilling your request."
+        }
+        return make_response(jsonify(response))
 
     @app.route('/shoppinglists/', methods=['POST', 'GET'])
     def shoppinglists():
@@ -234,7 +248,6 @@ def create_app(config_name):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
                     budgeted_amount = request.data.get('budgeted_amount', 0)
-                    print("?????", budgeted_amount)
                     if name and name.strip():
                         if ShoppingListItems.query.filter_by(
                             name=name, list_id=list_id).first() is not None:

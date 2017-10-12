@@ -2,6 +2,7 @@ import re
 from . import auth_blueprint
 from flask.views import MethodView
 from flask import Blueprint, make_response, request, jsonify
+from flask_bcrypt import Bcrypt
 from app.models import User
 
 class RegistrationView(MethodView):
@@ -168,9 +169,47 @@ class LoginView(MethodView):
                 }
                 return make_response(jsonify(response)), 401
 
+class PasswordResetView(MethodView):
+    """
+    This class-based view handles the reseting of a users password
+    """
+    def put(self):
+        """
+        Handles POST request
+        """
+        email = str(request.data.get('email'))
+        password = str(request.data.get('password'))
+        regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
+        if re.match(regex, email) and email.strip():
+            if len(password) > 6 and password.strip():
+                user = User.query.filter_by(email=email).first()
+                if user:
+                    user.password = Bcrypt().generate_password_hash(password).decode()
+                    user.save()
+                    response = {
+                    'message': "Password reset. You can now login with new password."
+                    }
+                    return make_response(jsonify(response)), 200
+                else:
+                    response = {
+                    'message': "User email does not exist."
+                    }
+                    return make_response(jsonify(response)), 404
+            else:
+                response = {
+                'message': "Password is either too short or empty."
+                }
+                return make_response(jsonify(response)), 400
+        else:
+            response = {
+            'message': "Email Invalid. Do not include special characters nor leave field empty."
+            }
+            return make_response(jsonify(response)), 400
+
 # define the API resource
 registration_view = RegistrationView.as_view('registration_view')
 login_view = LoginView.as_view('login_view')
+reset_view = PasswordResetView.as_view('reset_view')
 
 # define the API Endpoints
 auth_blueprint.add_url_rule(
@@ -186,5 +225,10 @@ auth_blueprint.add_url_rule(
 auth_blueprint.add_url_rule(
     '/auth/login/<int:user_id>',
     view_func=login_view,
+    methods=['PUT'])
+
+auth_blueprint.add_url_rule(
+    '/auth/reset',
+    view_func=reset_view,
     methods=['PUT'])
    
