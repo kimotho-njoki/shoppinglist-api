@@ -122,7 +122,7 @@ def create_app(config_name):
                         prev_page = '/shoppinglists/' + '?limit=' + str(limit) +\
                         '&page=' + str(page_no - 1)
                     response = {
-                    'shoppinglists': all_results,
+                    'shoppinglists': all_results if all_results else "No shoppinglists found.",
                     'previous_page': prev_page,
                     'next_page': next_page
                     }
@@ -337,7 +337,7 @@ def create_app(config_name):
                         prev_page = '/shoppinglists/' + str(list_id) + '/items' + '?limit=' + str(limit) +\
                         '&page=' + str(page_no - 1)
                     response = {
-                    'shoppingitems': all_results,
+                    'shoppingitems': all_results if all_results else "No items found.",
                     'previous_page': prev_page,
                     'next_page': next_page
                     }
@@ -399,8 +399,8 @@ def create_app(config_name):
                     }
                     return make_response(jsonify(response)), 404
                 if request.method == 'PUT':
-                    name = str(request.data.get('name', ''))
-                    budgeted_amount = request.data.get('budgeted_amount', 0)
+                    name = str(request.data.get('name', shoppinglistitem.name))
+                    budgeted_amount = request.data.get('budgeted_amount', shoppinglistitem.budgeted_amount)
                     if name and name.strip():
                         if not isinstance (budgeted_amount, str) and not budgeted_amount == '':
                             shoppinglistitem.name = name
