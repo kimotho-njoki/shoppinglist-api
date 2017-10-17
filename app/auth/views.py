@@ -123,12 +123,18 @@ class LoginView(MethodView):
         if access_token:
             user_id = User.decode_token(access_token)
             if not isinstance(user_id, str):
-                username = str(request.data.get('username', ''))
-                email = str(request.data.get('email', ''))
-                password = str(request.data.get('password', ''))
-                regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
                 user = User.query.filter_by(id=user_id).first()
-                if user:
+                if not user:
+                    response = {
+                    'message': "User does not exist."
+                    }
+                    return make_response(jsonify(response)), 404
+                else:
+                    username = str(request.data.get('username', user.username))
+                    email = str(request.data.get('email', user.email))
+                    password = str(request.data.get('password', user.password))
+                    regex = r"(^[a-zA-Z0-9_.]+@[a-zA-Z0-9-]+\.[a-z]+$)"
+                
                     if re.match("^[a-zA-Z0-9 _]*$", username) and username.strip():
                         if re.match(regex, email) and email.strip():
                             if len(password) > 6 and password.strip():
@@ -157,11 +163,6 @@ class LoginView(MethodView):
                         'message': "Username can neither include special characters nor be empty."
                         }
                         return make_response(jsonify(response)), 400
-                else:
-                    response = {
-                    'message': "User does not exist."
-                    }
-                    return make_response(jsonify(response)), 404
             else:
                 message = user_id
                 response = {
