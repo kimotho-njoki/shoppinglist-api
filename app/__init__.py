@@ -1,6 +1,7 @@
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort, make_response
+from flask_cors import CORS
 
 from instance.config import app_config
 
@@ -9,6 +10,7 @@ db = SQLAlchemy()
 def create_app(config_name):
     from app.models import ShoppingList, User, ShoppingListItems
     app = FlaskAPI(__name__, instance_relative_config=True)
+    CORS(app)
     app.url_map.strict_slashes=False
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
@@ -68,7 +70,7 @@ def create_app(config_name):
                 else:
                     search_query = request.args.get("q")
                     try:
-                        limit = int(request.args.get('limit', 10))
+                        limit = int(request.args.get('limit', 4))
                         page_no = int(request.args.get('page', 1))
                     except ValueError:
                         response = {
@@ -122,9 +124,10 @@ def create_app(config_name):
                         prev_page = '/shoppinglists/' + '?limit=' + str(limit) +\
                         '&page=' + str(page_no - 1)
                     response = {
-                    'shoppinglists': all_results if all_results else "No shoppinglists found.",
+                    'shoppinglists': all_results if all_results else [],
                     'previous_page': prev_page,
-                    'next_page': next_page
+                    'next_page': next_page,
+                    'page' : paginated_shoplists.page
                     }
                     return make_response(jsonify(response)), 200
             else:
@@ -247,7 +250,7 @@ def create_app(config_name):
             if not isinstance (user_id, str):
                 if request.method == 'POST':
                     name = str(request.data.get('name', ''))
-                    budgeted_amount = request.data.get('budgeted_amount', 0)
+                    budgeted_amount = float(request.data.get('budgeted_amount', 0))
                     if name and name.strip():
                         if ShoppingListItems.query.filter_by(
                             name=name, list_id=list_id).first() is not None:
@@ -279,7 +282,7 @@ def create_app(config_name):
                 else:
                     search_query = request.args.get("q")
                     try:
-                        limit = int(request.args.get('limit', 10))
+                        limit = int(request.args.get('limit', 5))
                         page_no = int(request.args.get('page', 1))
                     except ValueError:
                         response = {
@@ -337,7 +340,7 @@ def create_app(config_name):
                         prev_page = '/shoppinglists/' + str(list_id) + '/items' + '?limit=' + str(limit) +\
                         '&page=' + str(page_no - 1)
                     response = {
-                    'shoppingitems': all_results if all_results else "No items found.",
+                    'shoppingitems': all_results if all_results else [],
                     'previous_page': prev_page,
                     'next_page': next_page
                     }

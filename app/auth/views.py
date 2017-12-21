@@ -42,7 +42,7 @@ class RegistrationView(MethodView):
                         response = {
                         'message': "You are already registered. Please login."
                         }
-                        return make_response(jsonify(response)), 202
+                        return make_response(jsonify(response)), 302
                 else:
                     response = {
                     'message': "Password is either too short or empty."\
@@ -83,6 +83,7 @@ class LoginView(MethodView):
                             if access_token:
                                 response = {
                                 'message': 'You logged in successfully.',
+                                'username': username,
                                 'user_id': user.id,
                                 'access_token' : access_token.decode()
                                 }
